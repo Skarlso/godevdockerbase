@@ -31,18 +31,18 @@ USER default
 
 # Configure VIM.
 RUN git clone https://github.com/VundleVim/Vundle.vim.git /home/default/.vim/bundle/Vundle.vim
-RUN mkdir -p /home/vagrant/.vim/colors
+RUN mkdir -p /home/default/.vim/colors
 COPY ./data/vimrc /home/default/
 COPY ./data/onedark.vim /home/default/.vim/colors/
 RUN vim +PluginInstall +qall || true
-RUN cd /home/vagrant/.vim/bundle/YouCompleteMe || exit
+RUN cd /home/default/.vim/bundle/YouCompleteMe || exit
 RUN ./install.py || true
 
 # Install Go.
-RUN mkdir /home/vagrant/gohome && \
-    mkdir /home/vagrant/gohome/src && \
-    mkdir /home/vagrant/gohome/bin && \
-    mkdir /home/vagrant/gohome/pkg
+RUN mkdir /home/default/gohome && \
+    mkdir /home/default/gohome/src && \
+    mkdir /home/default/gohome/bin && \
+    mkdir /home/default/gohome/pkg
 
 USER root
 RUN apk add --no-cache go
