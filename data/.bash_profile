@@ -8,4 +8,4 @@ else # normal
   PS1="[\t \\u@\\h:\\w] $ "
 fi
 
-alias ll='ls -l'
+alias ll='ls -l --color'

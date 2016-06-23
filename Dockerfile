@@ -25,10 +25,28 @@ RUN apk upgrade && apk update && apk add --no-cache python python-dev ctags \
     make \
     perl shadow ncurses \
     iptables \
+    mercurial libxpm-dev libx11-dev libxt-dev ncurses-dev \
+    libsm libice libxt libx11 ncurses \
     py-pip openssh && \
     pip install --upgrade pip
 
-RUN apk upgrade && apk add vim
+# Installing vim.
+RUN apk add --update --virtual build-deps python python-dev ctags build-base \
+      make mercurial libxpm-dev libx11-dev libxt-dev ncurses-dev git      && \
+    cd /tmp                                                               && \
+    git clone https://github.com/vim/vim                                  && \
+    cd /tmp/vim                                                           && \
+    ./configure --with-features=big                                          \
+                #needed for editing text in languages which have many characters
+                --enable-multibyte                                           \
+                #python interop needed for some of my plugins
+                --enable-pythoninterp                                        \
+                --with-python-config-dir=/usr/lib/python2.7/config           \
+                --disable-gui                                                \
+                --disable-netbeans                                           \
+                --prefix /usr                                             && \
+    make VIMRUNTIMEDIR=/usr/share/vim/vim74                               && \
+    make install    
 
 USER default
 
