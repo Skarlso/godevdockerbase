@@ -5,6 +5,8 @@ MAINTAINER Gergely Brautigam
 
 # Create User.
 RUN adduser -D -h /home/default default default
+RUN echo default:password123 | chpasswd
+RUN addgroup default root
 
 # Setup Alpine.
 COPY ./data/repositories /etc/apk/
@@ -26,7 +28,7 @@ RUN apk upgrade && apk update && apk add --no-cache python python-dev ctags \
     py-pip openssh && \
     pip install --upgrade pip
 
-RUN apk add vim
+RUN apk upgrade && apk add vim
 
 USER default
 
