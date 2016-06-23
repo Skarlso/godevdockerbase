@@ -32,11 +32,10 @@ USER default
 # Configure VIM.
 RUN git clone https://github.com/VundleVim/Vundle.vim.git /home/default/.vim/bundle/Vundle.vim
 RUN mkdir -p /home/default/.vim/colors
-COPY ./data/vimrc /home/default/
+COPY ./data/.vimrc /home/default/
 COPY ./data/onedark.vim /home/default/.vim/colors/
-RUN vim +PluginInstall +qall || true
-RUN cd /home/default/.vim/bundle/YouCompleteMe || exit
-RUN ./install.py || true
+RUN vim +PluginInstall +qall >home/default/vim.out || true
+RUN /home/default/.vim/bundle/YouCompleteMe/install.py || true
 
 # Install Go.
 RUN mkdir /home/default/gohome && \
