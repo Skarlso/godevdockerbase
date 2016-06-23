@@ -1,0 +1,23 @@
+# This is a container for developing the famous Static Website generator framework
+# Hugo.
+FROM skarlso/godevbase
+MAINTAINER Gergely Brautigam
+
+USER default
+
+# First, install and setup Glide for later use.
+RUN mkdir -p /home/default/gohome/src/github.com/Masterminds/glide
+RUN git clone git@github.com:Masterminds/glide.git /home/default/gohome/src/github.com/Masterminds/glide
+WORKDIR /home/default/gohome/src/github.com/Masterminds/glide
+RUN make build && make install
+
+# Second, setup the repo to work with.
+ARG repo=hugo
+ARG user=Skarlso
+RUN mkdir -p /home/default/gohome/src/github.com/$user/$repo
+RUN git clone git@github.com:$user/$repo.git /home/default/gohome/src/github.com/$user
+WORKDIR /home/default/gohome/src/github.com/$user/$repo
+
+# I'm using Glide to manage dependencies to that repo which makes it pretty easy
+# and trivial to develop. Run a glide init. Then glide install.
+RUN glide init && glide install

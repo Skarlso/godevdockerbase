@@ -12,20 +12,19 @@ COPY ./data/.bash_profile /home/default/
 RUN chown default:default /home/default/.bash_profile
 
 # Install essential software.
-RUN apk update && apk upgrade && apk add --no-cache python python-dev ctags && \
-    apk add bash bash-doc bash-completion && \
-    apk add util-linux pciutils usbutils coreutils binutils findutils grep && \
-    apk add udisks2 udisks2-doc && \
-    apk add build-base gcc abuild binutils binutils-doc gcc-doc && \
-    apk add man man-pages && \
-    apk add htop vim git wget mc nmap lynx curl mercurial bzr && \
-    apk add cmake cmake-doc extra-cmake-modules extra-cmake-modules-doc && \
-    apk add make && \
-    apk add perl shadow ncurses && \
-    apk add iptables && \
-    apk add py-pip && \
-    pip install --upgrade pip && \
-    apk update
+RUN apk upgrade && apk add --no-cache python python-dev ctags \
+    bash bash-doc bash-completion \
+    util-linux pciutils usbutils coreutils binutils findutils grep \
+    udisks2 udisks2-doc \
+    build-base gcc abuild binutils binutils-doc gcc-doc \
+    man man-pages \
+    htop vim git wget mc nmap lynx curl mercurial bzr \
+    cmake cmake-doc extra-cmake-modules extra-cmake-modules-doc \
+    make \
+    perl shadow ncurses \
+    iptables \
+    py-pip openssh && \
+    pip install --upgrade pip
 
 USER default
 
