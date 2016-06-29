@@ -1,74 +1,45 @@
-FROM alpine
+FROM ubuntu:latest
 MAINTAINER Gergely Brautigam
-
-# RUN mkdir -p /home/default
 
 # Create User.
 RUN adduser -D -h /home/default default default
 RUN echo default:password123 | chpasswd
-RUN addgroup default root
+RUN addgroup default wheel
 
-# Setup Alpine.
-COPY ./data/repositories /etc/apk/
-COPY ./data/.bash_profile /home/default/
-RUN chown default:default /home/default/.bash_profile
+# Installing utils.
+RUN apt-get update && apt-get install -y htop vim git wget mc nmap \
+    build-essential cmake python-dev ctags language-pack-en
 
-# Install essential software.
-RUN apk upgrade && apk update && apk add --no-cache python python-dev ctags \
-    bash bash-doc bash-completion \
-    util-linux pciutils usbutils coreutils binutils findutils grep \
-    udisks2 udisks2-doc \
-    build-base gcc abuild binutils binutils-doc gcc-doc \
-    man man-pages \
-    htop git wget mc nmap lynx curl mercurial bzr \
-    cmake cmake-doc extra-cmake-modules extra-cmake-modules-doc \
-    make \
-    perl shadow ncurses \
-    iptables \
-    mercurial libxpm-dev libx11-dev libxt-dev ncurses-dev \
-    libsm libice libxt libx11 ncurses \
-    py-pip openssh && \
-    pip install --upgrade pip
-
-# Installing vim.
-RUN apk add --update --virtual build-deps python python-dev ctags build-base \
-      make mercurial libxpm-dev libx11-dev libxt-dev ncurses-dev git      && \
-    cd /tmp                                                               && \
-    git clone https://github.com/vim/vim                                  && \
-    cd /tmp/vim                                                           && \
-    ./configure --with-features=big                                          \
-                #needed for editing text in languages which have many characters
-                --enable-multibyte                                           \
-                #python interop needed for some of my plugins
-                --enable-pythoninterp                                        \
-                --with-python-config-dir=/usr/lib/python2.7/config           \
-                --disable-gui                                                \
-                --disable-netbeans                                           \
-                --prefix /usr                                             && \
-    make VIMRUNTIMEDIR=/usr/share/vim/vim74                               && \
-    make install    
-
-USER default
 
 # Configure VIM.
-RUN git clone https://github.com/VundleVim/Vundle.vim.git /home/default/.vim/bundle/Vundle.vim
-RUN mkdir -p /home/default/.vim/colors
+RUN git clone https://github.com/VundleVim/Vundle.vim.git /home/default/.vim/bundle/Vundle.vim &&
+    mkdir -p /home/default/.vim/colors
 COPY ./data/.vimrc /home/default/
 COPY ./data/onedark.vim /home/default/.vim/colors/
 RUN vim +PluginInstall +qall >home/default/vim.out || true
 RUN /home/default/.vim/bundle/YouCompleteMe/install.py || true
 
-# Install Go.
-RUN mkdir /home/default/gohome && \
-    mkdir /home/default/gohome/src && \
-    mkdir /home/default/gohome/bin && \
-    mkdir /home/default/gohome/pkg
+# Installing Go.
+USER default
+RUN mkdir /home/default/gohome && mkdir /home/default/gohome/src && \
+    mkdir /home/default/gohome/bin && mkdir /home/default/gohome/pkg && \
+    wget https://storage.googleapis.com/golang/go$GO_VERSION.linux-amd64.tar.gz -O /home/default/go.tar.gz && \
 
 USER root
-RUN apk add --no-cache go
+RUN tar -C /usr/local -xzf /home/default/go.tar.gz
 
 USER default
-ENV GOROOT=/usr/lib/go
-ENV PATH=$PATH:$GOROOT/bin
+
+ENV PATH=$PATH:/usr/local/go/bin
 ENV GOPATH=/home/default/gohome
 ENV PATH=$PATH:$GOPATH/bin
+RUN echo "export PATH=$PATH:/usr/local/go/bin" >> /home/default/.bash_profile && \
+    echo "export GOPATH=/home/default/gohome" >> /home/default/.bash_profile && \
+    echo "export PATH=$PATH:$GOPATH/bin" >> /home/default/.bash_profile
+
+# Install Atom.
+RUN wget https://github.com/atom/atom/releases/download/v1.8.0/atom-amd64.deb -P /hom/default/atom-amd64.deb
+USER root
+RUN dpkg --install /home/default/atom-amd64.deb
+
+USER default
